@@ -26,27 +26,52 @@ E --> F["Analytics (Optional)"]
 
 ## Data Flow
 ```mermaid
+---
+config:
+  theme: default
+  look: classic
+  layout: dagre
+---
 flowchart LR
+subgraph IoT Sensors
+    A[DHT22]
+    B[BH1750]
+    C[DS18B20]
+    D[ESP32]
+    K[Water Flow]
+end
 
-A[DHT22]
-B[BH1750]
-C[DS18B20]
-K[Water Flow]
+subgraph Data and Monitoring
+    E[API]
+    G[Streamlit App]
+    J[(SQL Server)]
+end
 
-A --> D[ESP32]
+subgraph Manual Readings
+    F[pH]
+    H[Ec]
+    M[NPK]
+end
+
+subgraph MessageBroker
+    L[MQTT]
+end
+
+A --> D
 B --> D
 C --> D
 K --> D
 
-D --> |HTTP POST| E[Python Ingestion API]
+D -. Publish node01/data .- L
+L -. Publish node01/data .- E
 
-F[pH Manual Reading] --> G[Streamlit App]
-H[Ec Manual Reading] --> G
+F --> G
+H --> G
 
-G -->  |HTTP POST| E
+G -. HTTP POST .- E
 
-E --> J[(SQL Server)]
-E --> |HTTP GET| G
+E --> J
+E -. HTTP GET.- G
 ```
 
 ## Data Modeling
